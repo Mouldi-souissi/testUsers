@@ -5,12 +5,13 @@ import Delete from "./Delete";
 import Edit from "./Edit";
 
 const Admin = () => {
-  const users = useStore((state) => state.users).sort((a, b) => a.id - b.id);
+  const users = useStore((state) => state.users);
   const getUsers = useStore((state) => state.getUsers);
   const [isEditing, setEditing] = useState(false);
   const [isDeleting, setDeleting] = useState(false);
   const [isAdding, setAdding] = useState(false);
   const [user, setUser] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!users.length) {
@@ -29,6 +30,12 @@ const Admin = () => {
           Add User
         </button>
       </div>
+      <input
+        type="text"
+        className="form-control my-5"
+        placeholder="Search . . ."
+        onChange={(e) => setSearch(e.target.value.trim().toLocaleLowerCase())}
+      />
 
       {isEditing && <Edit user={user} setEditing={setEditing} />}
       {isDeleting && <Delete user={user} setDeleting={setDeleting} />}
@@ -45,39 +52,50 @@ const Admin = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
+          {users
+            .sort((a, b) => a.id - b.id)
+            .filter(
+              (user) =>
+                user.name.trim().toLocaleLowerCase().includes(search) ||
+                user.email.trim().toLocaleLowerCase().includes(search) ||
+                user.id === Number(search)
+            )
+            .map((user) => (
+              <tr key={user.id}>
+                <td>{user.id}</td>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
 
-              <td>
-                <button
-                  className="btn btn-transparent"
-                  onClick={() => {
-                    setDeleting(!isDeleting);
-                    setUser(user);
-                  }}
-                >
-                  <i className="fa fa-trash-o text-danger" aria-hidden="true" />
-                </button>
-              </td>
-              <td>
-                <button
-                  className="btn btn-transparent"
-                  onClick={() => {
-                    setEditing(!isEditing);
-                    setUser(user);
-                  }}
-                >
-                  <i
-                    className="fa fa-pencil-square-o text-warning"
-                    aria-hidden="true"
-                  />
-                </button>
-              </td>
-            </tr>
-          ))}
+                <td>
+                  <button
+                    className="btn btn-transparent"
+                    onClick={() => {
+                      setDeleting(!isDeleting);
+                      setUser(user);
+                    }}
+                  >
+                    <i
+                      className="fa fa-trash-o text-danger"
+                      aria-hidden="true"
+                    />
+                  </button>
+                </td>
+                <td>
+                  <button
+                    className="btn btn-transparent"
+                    onClick={() => {
+                      setEditing(!isEditing);
+                      setUser(user);
+                    }}
+                  >
+                    <i
+                      className="fa fa-pencil-square-o text-warning"
+                      aria-hidden="true"
+                    />
+                  </button>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>
